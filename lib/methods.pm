@@ -1,11 +1,22 @@
 package methods;
 use strict;
 use warnings;
+use Carp qw(confess);
 
-=head1 NAME
+sub import {
+    my $caller  = scalar caller;
+    my $class   = shift;
+    my @methods = @_;
 
-methods - 
+    confess 'No methods to install?' unless @methods;
 
-=cut
+    for my $method (@methods){
+        no strict 'refs';
+        *{ $caller. '::'. $method } = sub($;@) {
+            my $invocant = shift;
+            $invocant->$method(@_);
+        };
+    }
+}
 
 1;
